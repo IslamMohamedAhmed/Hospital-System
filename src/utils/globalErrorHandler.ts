@@ -1,4 +1,7 @@
-export const globalErrorHandler = (err: any, req: any, res: any, next: any) => {
+import type { NextFunction, Request, Response } from "express";
+import type { appError } from "./appError.js";
+
+export const globalErrorHandler = (err: appError, req: Request, res: Response, next: NextFunction) => {
     err.statusCode = err.statusCode || 500;
     let errorBody = {};
     if (process.env.MODE === "Production") {
