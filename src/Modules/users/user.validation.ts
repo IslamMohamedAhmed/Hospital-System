@@ -53,8 +53,57 @@ const loginValidation = joi.object({
         }),
 }).unknown(true);
 
+const changePasswordValidation = joi.object({
+    oldPassword: joi.string()
+        .min(8)
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        .required()
+        .messages({
+            'string.min': 'Password must be at least 8 characters long',
+            'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+            'string.empty': 'Password is required',
+            'any.required': 'Password is required'
+        }),
+    newPassword: joi.string()
+        .min(8)
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        .required()
+        .messages({
+            'string.min': 'Password must be at least 8 characters long',
+            'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+            'string.empty': 'Password is required',
+            'any.required': 'Password is required'
+        })
+}).unknown(true);
+
+const requestResetPasswordValidation = joi.object({
+    email: joi.string()
+        .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org', 'edu', 'gov', 'pro'] } })
+        .required()
+        .messages({
+            'string.email': 'Please provide a valid email address',
+            'string.empty': 'Email is required',
+            'any.required': 'Email is required'
+        })
+}).unknown(true);
+
+const resetPasswordValidation = joi.object({
+    newPassword: joi.string()
+        .min(8)
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        .required()
+        .messages({
+            'string.min': 'Password must be at least 8 characters long',
+            'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+            'string.empty': 'Password is required',
+            'any.required': 'Password is required'
+        })
+}).unknown(true);
 
 export {
     registerValidation,
-    loginValidation
+    loginValidation,
+    changePasswordValidation,
+    requestResetPasswordValidation,
+    resetPasswordValidation
 }

@@ -49,7 +49,97 @@ const login = catchError(async (req: Request, res: Response, next: NextFunction)
     return next(new appError("Email or password are incorrect!!", 401));
 });
 
+const changePassword = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    let userData = req.headers['user-info'] as any;
+    let user = await getPrisma.user.findUnique({
+        where: {
+            id: userData?.id
+        }
+    });
+    if (user) {
+        let match = bcrypt.compareSync(req.body.oldPassword, user.password);
+        if (match) {
+            let token = jwt.sign(
+                {
+                    userInfo: {
+                        id: user.id, email: user.email, role: user.role,
+                        verified: user.isVerified
+                    }
+                },
+                env('JWT_KEY_SIGNIN')
+            );
+            req.body.newPassword = bcrypt.hashSync(req.body.newPassword, 8);
+            await getPrisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    password: req.body.newPassword,
+                    PasswordChangedAt: new Date()
+                }
+            });
+            res.status(201).json({ message: "password reset was successful", token });
 
-export { register, verify, login };
+        }
+        else return new appError('password is incorrect', 401);
+
+    }
+    else return new appError('invalid user!!', 400);
+
+});
+
+const requestResetPassword = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    let user = await getPrisma.user.findUnique({
+        where: {
+            email: req.body.email
+        }
+    });
+    if (!user) return new appError('user is not found!!', 404);
+    let token = jwt.sign({ userId: user.id }, env('JWT_KEY_RESET_PASSWORD'));
+    res.status(201).json({
+        message: "success",
+        note: "send a template to the user to add a new password and add the following token to headers", token
+    });
+});
+
+const resetPassword = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    let tokenHeader = req.headers['token'];
+    let token: string | undefined = Array.isArray(tokenHeader) ? tokenHeader[0] : tokenHeader;
+    if (!token) return next(new appError('Token is required', 400));
+    let decoded: any = jwt.verify(token, env('JWT_KEY_RESET_PASSWORD'));
+    if (!decoded.userId) return new appError('invalid token !!', 401);
+    let user = await getPrisma.user.findUnique({
+        where: {
+            id: decoded.userId
+        }
+    });
+    if (!user) return new appError('user is not found!!', 404);
+    req.body.newPassword = bcrypt.hashSync(req.body.newPassword, 8);
+    await getPrisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: {
+            password: req.body.newPassword,
+            PasswordChangedAt: new Date()
+
+        }
+    });
+    let resetToken = jwt.sign(
+        {
+            userInfo: {
+                id: user.id, email: user.email, role: user.role,
+                verified: user.isVerified
+            }
+        },
+        env('JWT_KEY_SIGNIN')
+    );
+    res.status(201).json({
+        message: "password reset was successful!!",
+        resetToken
+    })
+});
+
+export { register, verify, login, changePassword, requestResetPassword, resetPassword };
 
 
