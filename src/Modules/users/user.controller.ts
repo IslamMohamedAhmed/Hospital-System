@@ -1,3 +1,4 @@
+import { Role } from './../../../generated/prisma/enums.js';
 import jwt from 'jsonwebtoken';
 import type { NextFunction, Request, Response } from "express";
 import { catchError } from "../../utils/catchError.js";
@@ -9,6 +10,12 @@ import bcrypt from 'bcrypt';
 const register = catchError(async (req: Request, res: Response, next: NextFunction) => {
     req.body.PasswordChangedAt = new Date();
     req.body.password = bcrypt.hashSync(req.body.password, 8);
+    const email = await getPrisma.user.findUnique({
+        where: {
+            email: req.body.email
+        }
+    });
+    if (email) return next(new appError('email has to be unique & that email was used before!!', 401));
     await getPrisma.user.create({
         data: req.body,
     });
@@ -81,10 +88,10 @@ const changePassword = catchError(async (req: Request, res: Response, next: Next
             res.status(201).json({ message: "password reset was successful", token });
 
         }
-        else return new appError('password is incorrect', 401);
+        else return next(new appError('password is incorrect', 401));
 
     }
-    else return new appError('invalid user!!', 400);
+    else return next(new appError('invalid user!!', 400));
 
 });
 
@@ -94,7 +101,7 @@ const requestResetPassword = catchError(async (req: Request, res: Response, next
             email: req.body.email
         }
     });
-    if (!user) return new appError('user is not found!!', 404);
+    if (!user) return next(new appError('user is not found!!', 404));
     let token = jwt.sign({ userId: user.id }, env('JWT_KEY_RESET_PASSWORD'));
     res.status(201).json({
         message: "success",
@@ -107,13 +114,13 @@ const resetPassword = catchError(async (req: Request, res: Response, next: NextF
     let token: string | undefined = Array.isArray(tokenHeader) ? tokenHeader[0] : tokenHeader;
     if (!token) return next(new appError('Token is required', 400));
     let decoded: any = jwt.verify(token, env('JWT_KEY_RESET_PASSWORD'));
-    if (!decoded.userId) return new appError('invalid token !!', 401);
+    if (!decoded.userId) return next(new appError('invalid token !!', 401));
     let user = await getPrisma.user.findUnique({
         where: {
             id: decoded.userId
         }
     });
-    if (!user) return new appError('user is not found!!', 404);
+    if (!user) return next(new appError('user is not found!!', 404));
     req.body.newPassword = bcrypt.hashSync(req.body.newPassword, 8);
     await getPrisma.user.update({
         where: {
@@ -137,9 +144,93 @@ const resetPassword = catchError(async (req: Request, res: Response, next: NextF
     res.status(201).json({
         message: "password reset was successful!!",
         resetToken
-    })
+    });
 });
 
-export { register, verify, login, changePassword, requestResetPassword, resetPassword };
+const addUser = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    req.body.PasswordChangedAt = new Date();
+    req.body.isVerified = true;
+    req.body.password = bcrypt.hashSync(req.body.password, 8);
+    const email = await getPrisma.user.findUnique({
+        where: {
+            email: req.body.email
+        }
+    });
+    if (email) return next(new appError('email has to be unique & that email was used before!!', 401));
+    await getPrisma.user.create({
+        data: req.body,
+    });
+    await getPrisma.user.create({
+        data: req.body
+    });
+    res.status(201).json({ message: "user was created successfully!!" });
+});
+
+const deleteUser = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.params.id) return next(new appError('User ID is required', 401));
+    await getPrisma.user.delete({
+        where: {
+            id: req.params.id
+        }
+    });
+    res.status(201).json({ message: "user was deleted successfully!!" });
+});
+
+const getAllUsers = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    const allUsers = await getPrisma.user.findMany({});
+    res.status(201).json({ message: "success!!", allUsers });
+});
+
+const getSingleUser = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.params.id) return next(new appError('User ID is required', 401));
+    const user = await getPrisma.user.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
+    res.status(201).json({ message: "success!!", user });
+});
+
+const updateUser = catchError(async (req: Request, res: Response, next: NextFunction) => {
+    const { password, email, role } = req.body;
+
+    const dataToUpdate: any = {};
+    if (password) {
+        dataToUpdate.password = bcrypt.hashSync(password, 8);
+        dataToUpdate.PasswordChangedAt = new Date();
+    }
+    if (email) {
+        const email = await getPrisma.user.findUnique({
+            where: {
+                email: req.body.email
+            }
+        });
+        if (email) return next(new appError('email has to be unique & that email was used before!!', 401));
+        await getPrisma.user.create({
+            data: req.body,
+        });
+        dataToUpdate.email = email;
+    }
+    if (role) dataToUpdate.role = role;  // make sure role is validated if enum
+
+    if (Object.keys(dataToUpdate).length === 0) {
+        return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    if (!req.params.id) return next(new appError('User ID is required', 401));
+    await getPrisma.user.update({
+        where: { id: req.params.id },
+        data: dataToUpdate,
+    });
+    res.status(201).json({ message: "user was updated successfully!!" });
+});
+
+
+
+export {
+    register, verify, login,
+    changePassword, requestResetPassword, resetPassword,
+    addUser, deleteUser, getAllUsers, getSingleUser, updateUser
+};
 
 
