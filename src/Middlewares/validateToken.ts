@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import { appError } from "../utils/appError.js";
 import { env } from 'prisma/config';
 import { getPrisma } from './getPrisma.js';
-
+import 'dotenv/config';
 export const validateToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let token: string | undefined = Array.isArray(req.headers['token']) ? req.headers['token'][0] : req.headers['token'];

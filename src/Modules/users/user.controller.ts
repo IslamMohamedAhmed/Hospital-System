@@ -160,9 +160,6 @@ const addUser = catchError(async (req: Request, res: Response, next: NextFunctio
     await getPrisma.user.create({
         data: req.body,
     });
-    await getPrisma.user.create({
-        data: req.body
-    });
     res.status(201).json({ message: "user was created successfully!!" });
 });
 

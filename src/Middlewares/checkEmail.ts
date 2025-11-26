@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
 import { getPrisma } from "./getPrisma.js";
-import 'dotenv/config'
 
 export const checkEmail = async (req: Request, res: Response, next: NextFunction) => {
     
