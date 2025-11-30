@@ -28,7 +28,7 @@ const registerValidation = joi.object({
         .messages({
             'any.only': 'Role must be one of: DOCTOR, NURSE, RECEPTIONIST',
             'any.required': 'Role is required'
-        }),
+        })
 }).unknown(true);
 
 const loginValidation = joi.object({

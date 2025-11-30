@@ -211,7 +211,7 @@ const updateUser = catchError(async (req: Request, res: Response, next: NextFunc
     if (role) dataToUpdate.role = role;  // make sure role is validated if enum
 
     if (Object.keys(dataToUpdate).length === 0) {
-        return res.status(400).json({ error: 'No fields to update' });
+        return next(new appError('No fields to update', 400));
     }
 
     if (!req.params.id) return next(new appError('User ID is required', 401));

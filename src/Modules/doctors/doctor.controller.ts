@@ -53,7 +53,7 @@ const updateDoctor = catchError(async (req: Request, res: Response, next: NextFu
     }
 
     if (Object.keys(dataToUpdate).length === 0) {
-        return res.status(400).json({ error: 'No fields to update' });
+        return next(new appError('No fields to update', 400));
     }
     if (!req.params.id) return next(new appError('Doctor ID is required', 401));
     const doctor = await getPrisma.doctor.update({
