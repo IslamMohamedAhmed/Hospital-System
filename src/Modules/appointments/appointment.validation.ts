@@ -9,12 +9,8 @@ const addAppointmentValidation = joi.object({
             'date.format': 'Date of birth must be in ISO format',
             'any.required': 'Date of birth is required'
         }),
-    patientId: joi.string().uuid().required().messages({
-        "any.required": "patientId is required!!"
-    }),
-    doctorId: joi.string().uuid().required().messages({
-        "any.required": "doctorId is required!!"
-    }),
+    patientId: joi.string().uuid(),
+    doctorId: joi.string().uuid(),
     status: joi.string().valid('SCHEDULED', 'COMPLETED', 'CANCELLED').messages({
         "any.only": "status must be one of 'SCHEDULED', 'COMPLETED', 'CANCELLED'",
     }),
@@ -36,12 +32,8 @@ const updateAppointmentValidation = joi.object({
             'date.min': 'Date must be starting from today\'s date',
             'date.format': 'Date of birth must be in ISO format',
         }),
-    patientId: joi.string().uuid().messages({
-        "any.required": "patientId is required!!"
-    }),
-    doctorId: joi.string().uuid().messages({
-        "any.required": "doctorId is required!!"
-    }),
+    patientId: joi.string().uuid(),
+    doctorId: joi.string().uuid(),
     status: joi.string().valid('SCHEDULED', 'COMPLETED', 'CANCELLED').messages({
         "any.only": "status must be one of 'SCHEDULED', 'COMPLETED', 'CANCELLED'",
     }),

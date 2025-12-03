@@ -7,6 +7,8 @@ import DepartmentRouter from "./Modules/departments/department.routes.js";
 import DoctorRouter from "./Modules/doctors/doctor.routes.js";
 import PatientRouter from "./Modules/patients/patient.routes.js";
 import AppointmentRouter from "./Modules/appointments/appointment.routes.js";
+import medicalRecordRouter from "./Modules/medical-records/medical-records.routes.js";
+import prescriptionRouter from "./Modules/prescriptions/prescriptions.routes.js";
 export const useRoutes = (app: Application) => {
     app.use(express.json());
     app.use(cors());
@@ -15,6 +17,8 @@ export const useRoutes = (app: Application) => {
     app.use('/api/v1/doctors', DoctorRouter);
     app.use('/api/v1/patients', PatientRouter);
     app.use('/api/v1/appointments', AppointmentRouter);
+    app.use('/api/v1/medical-records', medicalRecordRouter);
+    app.use('/api/v1/prescriptions', prescriptionRouter);
     app.use(invalidPathHandler);
     app.use(globalErrorHandler);
     process.on('unhandledRejection', (err) => {
