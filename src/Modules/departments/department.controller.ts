@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { catchError } from "../../utils/catchError.js";
 import { getPrisma } from "../../Middlewares/getPrisma.js";
 import { appError } from '../../utils/appError.js';
+import { QueryBuilder } from "../../Services/queryBuilder/queryBuilder.js";
 
 const addDepartment = catchError(async (req: Request, res: Response, next: NextFunction) => {
     const name = await getPrisma.department.findUnique({
@@ -62,8 +63,29 @@ const deleteDepartment = catchError(async (req: Request, res: Response, next: Ne
 });
 
 const getAllDepartments = catchError(async (req: Request, res: Response, next: NextFunction) => {
-    const allDepartments = await getPrisma.department.findMany({});
-    res.status(200).json({ message: "success", allDepartments });
+    const qb = new QueryBuilder(
+        getPrisma.department,
+        req.query,
+        ['name']
+    );
+
+
+    await qb
+        .filter()
+        .search()
+        .sort()
+        .fields()
+        .pagination();
+
+    const allDepartments = await qb.buildQuery();
+
+    res.status(200).json({
+        status: 'success',
+        page: qb.pageNumber,
+        totalPages: qb.totalPages,
+        totalItems: qb.totalItems,
+        data: allDepartments
+    });
 });
 
 

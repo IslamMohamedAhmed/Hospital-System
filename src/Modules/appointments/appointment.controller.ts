@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { catchError } from "../../utils/catchError.js";
 import { getPrisma } from "../../Middlewares/getPrisma.js";
 import { appError } from '../../utils/appError.js';
-import { Role } from "../../../generated/prisma/enums.js";
+import { QueryBuilder } from "../../Services/queryBuilder/queryBuilder.js";
 
 const addAppointment = catchError(async (req: Request, res: Response, next: NextFunction) => {
     const appointment = await getPrisma.appointment.create({
@@ -56,8 +56,30 @@ const deleteAppointment = catchError(async (req: Request, res: Response, next: N
 });
 
 const getAllAppointments = catchError(async (req: Request, res: Response, next: NextFunction) => {
-    const allAppointments = await getPrisma.appointment.findMany({});
-    res.status(200).json({ message: "success", allAppointments });
+    const qb = new QueryBuilder(
+        getPrisma.appointment,
+        req.query,
+        ['notes']
+    );
+
+
+    await qb
+        .filter()
+        .search()
+        .sort()
+        .fields()
+        .pagination();
+
+    const allAppointments = await qb.buildQuery();
+
+
+    res.status(200).json({
+        status: 'success',
+        page: qb.pageNumber,
+        totalPages: qb.totalPages,
+        totalItems: qb.totalItems,
+        data: allAppointments
+    });
 });
 
 const updateAppointmentStatus = catchError(async (req: Request, res: Response, next: NextFunction) => {

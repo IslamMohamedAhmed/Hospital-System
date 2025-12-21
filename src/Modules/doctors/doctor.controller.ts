@@ -3,6 +3,7 @@ import { catchError } from "../../utils/catchError.js";
 import { getPrisma } from "../../Middlewares/getPrisma.js";
 import { appError } from '../../utils/appError.js';
 import { Role } from "../../../generated/prisma/enums.js";
+import { QueryBuilder } from "../../Services/queryBuilder/queryBuilder.js";
 
 const addDoctor = catchError(async (req: Request, res: Response, next: NextFunction) => {
     const doctorExist = await getPrisma.doctor.findUnique({
@@ -91,8 +92,30 @@ const deleteDoctor = catchError(async (req: Request, res: Response, next: NextFu
 });
 
 const getAllDoctors = catchError(async (req: Request, res: Response, next: NextFunction) => {
-    const allDoctors = await getPrisma.doctor.findMany({});
-    res.status(200).json({ message: "success", allDoctors });
+    const qb = new QueryBuilder(
+        getPrisma.doctor,
+        req.query,
+        ['firstName', 'lastName', 'specialization']
+    );
+
+
+    await qb
+        .filter()
+        .search()
+        .sort()
+        .fields()
+        .pagination();
+
+    const allDoctors = await qb.buildQuery();
+
+
+    res.status(200).json({
+        status: 'success',
+        page: qb.pageNumber,
+        totalPages: qb.totalPages,
+        totalItems: qb.totalItems,
+        data: allDoctors
+    });
 });
 
 
