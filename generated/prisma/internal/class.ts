@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "C:\\Users\\pc\\Desktop\\HospitalSystem\\Hospital-System\\generated\\prisma",
+      "value": "C:\\Users\\pc\\Documents\\My Staff\\HospitalSystem\\Hospital-System\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -37,7 +37,7 @@ const config: runtime.GetPrismaClientConfig = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\pc\\Desktop\\HospitalSystem\\Hospital-System\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\pc\\Documents\\My Staff\\HospitalSystem\\Hospital-System\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../prisma",
@@ -47,6 +47,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

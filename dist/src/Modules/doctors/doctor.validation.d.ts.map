@@ -1,0 +1,1 @@
+{"version":3,"file":"doctor.validation.d.ts","sourceRoot":"","sources":["../../../../src/Modules/doctors/doctor.validation.ts"],"names":[],"mappings":"AAAA,OAAO,GAAG,MAAM,KAAK,CAAC;AAEtB,QAAA,MAAM,mBAAmB,uBAkBT,CAAC;AAEjB,QAAA,MAAM,gBAAgB,uBAEN,CAAC;AAEjB,QAAA,MAAM,sBAAsB,uBAgBZ,CAAC;AAIjB,OAAO,EACH,gBAAgB,EAChB,mBAAmB,EACnB,sBAAsB,EACzB,CAAA"}
