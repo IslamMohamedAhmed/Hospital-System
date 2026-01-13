@@ -136,18 +136,22 @@ export class QueryBuilder {
 
     _autoParse(val: any) {
         if (typeof val === 'string') {
+            if (val === 'true') return true;
+            if (val === 'false') return false;
+
+            const num = Number(val);
+            if (!Number.isNaN(num) && val.trim() !== '') return num;
+
             const normalized = val.toUpperCase();
-            normalized as AppointmentStatus;
-            return Object.values(AppointmentStatus).includes(normalized as AppointmentStatus)
-                ? (normalized as AppointmentStatus)
-                : undefined;
+            if (Object.values(AppointmentStatus).includes(normalized as AppointmentStatus)) {
+                return normalized as AppointmentStatus;
+            }
+            else {
+                return undefined;
+            }
+
         }
-        if (val === 'true') return true;
-        if (val === 'false') return false;
-        const num = Number(val);
-        if (!Number.isNaN(num) && String(val).trim() !== '') return num;
-        const d = new Date(val);
-        if (!Number.isNaN(d.getTime())) return d;
+
         return val;
     }
 
